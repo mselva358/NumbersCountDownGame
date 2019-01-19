@@ -16,6 +16,18 @@ extension Array where Element: Hashable {
     }
 }
 
+extension Array where Element : Equatable {
+    var unique: [Element] {
+        var uniqueValues: [Element] = []
+        forEach { item in
+            if !uniqueValues.contains(item) {
+                uniqueValues += [item]
+            }
+        }
+        return uniqueValues
+    }
+}
+
 class SolvationViewController: BaseViewController {
     @IBOutlet weak var targetLbl: UILabel!
     @IBOutlet weak var numbersCollectionView: UICollectionView!
@@ -46,6 +58,7 @@ class SolvationViewController: BaseViewController {
         self.steps.append((self.operand1, self.operand2, self.numbers))
         self.numbers = self.numbers.difference(from: [self.operand1, self.operand2])
         self.numbers.insert(self.operand1*self.operand2, at: 0)
+        self.numbers = self.numbers.unique
         self.checkTarget(self.operand1*self.operand2)
         self.clearOperands()
     }
@@ -59,6 +72,7 @@ class SolvationViewController: BaseViewController {
             self.steps.append((self.operand1, self.operand2, self.numbers))
             self.numbers = self.numbers.difference(from: [self.operand1, self.operand2])
             self.numbers.insert(self.operand1/self.operand2, at: 0)
+            self.numbers = self.numbers.unique
             self.checkTarget(self.operand1/self.operand2)
         } else {
             self.showAlertWith("", message: "Result of the operation cannot at fraction", completion: nil)
@@ -73,6 +87,7 @@ class SolvationViewController: BaseViewController {
         self.steps.append((self.operand1, self.operand2, self.numbers))
         self.numbers = self.numbers.difference(from: [self.operand1, self.operand2])
         self.numbers.insert(self.operand1-self.operand2, at: 0)
+        self.numbers = self.numbers.unique
         self.checkTarget(self.operand1-self.operand2)
         self.clearOperands()
     }
@@ -87,9 +102,10 @@ class SolvationViewController: BaseViewController {
     @IBAction func back(_ sender: Any) {
         if self.steps.count > 0 {
             let lastStep = self.steps.last
-            self.operand1 = lastStep?.0 ?? 0
-            self.operand2 = lastStep?.1 ?? 0
+            self.operand1 = 0
+            self.operand2 = 0
             self.numbers = lastStep?.2 ?? self.choosenNumbers
+            self.numbers = self.numbers.unique
             self.steps.removeLast()
             self.numbersCollectionView.reloadData()
         }
